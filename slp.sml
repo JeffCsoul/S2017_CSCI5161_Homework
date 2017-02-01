@@ -80,7 +80,6 @@ fun maxargs init_stm =
   let
     fun maxargs_stm (CompoundStm(stm1,stm2)) = max (maxargs_stm stm1) (maxargs_stm stm2)
       | maxargs_stm (AssignStm(id1, exp1)) = maxargs_exp exp1
-      | maxargs_stm (PrintStm(nil)) = 0
       | maxargs_stm (PrintStm(explist1)) = max (maxargs_explist explist1) (countlength (explist1))
     and maxargs_exp (IdExp(id1)) = 0
       | maxargs_exp (NumExp(int1)) = 0
