@@ -70,3 +70,24 @@ val prog4 =
                                          OpExp( IdExp "a", Minus, NumExp 3))],
                         OpExp(NumExp 10, Times, IdExp"a"))),
                 PrintStm[IdExp "b"]))
+
+fun max a b = if a > b then a else b
+
+fun countlength nil = 0
+  | countlength (hd::tl) = 1 + countlength tl
+
+fun maxargs init_stm =
+  let
+    fun maxargs_stm (CompoundStm(stm1,stm2)) = max (maxargs_stm stm1) (maxargs_stm stm2)
+      | maxargs_stm (AssignStm(id1, exp1)) = maxargs_exp exp1
+      | maxargs_stm (PrintStm(nil)) = 0
+      | maxargs_stm (PrintStm(explist1)) = max (maxargs_explist explist1) (countlength (explist1))
+    and maxargs_exp (IdExp(id1)) = 0
+      | maxargs_exp (NumExp(int1)) = 0
+      | maxargs_exp (OpExp(exp1, binop1, exp2)) = max (maxargs_exp exp1) (maxargs_exp exp2)
+      | maxargs_exp (EseqExp(stm1, exp1)) = max (maxargs_stm stm1) (maxargs_exp exp1)
+    and maxargs_explist (nil) = 0
+      | maxargs_explist (hd::tl) = max (maxargs_exp hd) (maxargs_explist tl)
+  in
+    maxargs_stm init_stm
+  end
