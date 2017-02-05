@@ -14,6 +14,7 @@ datatype stm = CompoundStm of stm * stm
 type table = (id * int) list
 
 exception LookUp
+exception ErrorBinOp
 
 fun lookup nil id =
      (print "Error: undefined id "; print id; print "\n";
@@ -89,4 +90,51 @@ fun maxargs init_stm =
       | maxargs_explist (hd::tl) = max (maxargs_exp hd) (maxargs_explist tl)
   in
     maxargs_stm init_stm
+  end
+
+fun interp init_stm =
+  let
+    fun interp_stm (CompoundStm(stm1, stm2)) init_table =
+      let
+        val table_stm1 = interp_stm stm1 init_table
+      in
+        interp_stm stm2 table_stm1
+      end
+      | interp_stm (AssignStm(id1, exp1)) init_table =
+        let
+          val (table_exp1, return_val) = interp_exp exp1 init_table
+        in
+          (id1, return_val) :: table_exp1
+        end
+      | interp_stm (PrintStm(nil)) init_table = init_table
+      | interp_stm (PrintStm(hd::restexplist)) init_table =
+        let
+          val (table_exphd, return_val) = interp_exp hd init_table
+        in
+          interp_stm (PrintStm(restexplist)) table_exphd
+        end
+    and interp_exp (IdExp(id1)) init_table = (init_table, lookup init_table id1)
+      | interp_exp (NumExp(int1)) init_table = (init_table, int1)
+      | interp_exp (OpExp(exp1, binop1, exp2)) init_table =
+        let
+          val (table_exp1, val_exp1) = interp_exp exp1 init_table
+        in
+          let
+            val (table_exp2, val_exp2) = interp_exp exp2 table_exp1
+          in
+            if binop1 = Plus then (table_exp2, val_exp1 + val_exp2)
+            else if binop1 = Minus then (table_exp2, val_exp1 - val_exp2)
+            else if binop1 = Times then (table_exp2, val_exp1 * val_exp2)
+            else if binop1 = Div then (table_exp2, val_exp1 div val_exp2)
+            else raise (print "Error: undefined Operator"; raise ErrorBinOp)
+          end
+        end
+      | interp_exp (EseqExp(stm1, exp1)) init_table =
+        let
+          val table_stm1 = interp_stm stm1 init_table
+        in
+          interp_exp exp1 table_stm1
+        end
+  in
+    interp_stm init_stm nil
   end
