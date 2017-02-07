@@ -3,6 +3,7 @@ sig
   type 'a map
   exception NotFound
   val apply : 'a map * int -> 'a
+  val update : int * 'a * 'a map -> 'a map
 end;
 
 signature ValSig =
@@ -45,14 +46,9 @@ functor SymTblFct(
           in find (s,l)
           end handle IntMap.NotFound => raise Lookup
 
-    fun replace (sym,[],v) = raise Lookup
-      | replace (sym, (sym', v')::rest, v) =
-          if sym = sym' then (sym, v) :: rest
-          else (sym', v') :: replace(sym, rest, v)
-
     fun update (TBL map, s, v) =
       let val n = Sym.hash(s)
           val l = IntMap.apply(map,n)
-      in TBL (replace (s,l,v))
+      in TBL (IntMap.update(n, (s, v)::l, map))
       end handle IntMap.NotFound => raise Lookup
   end
