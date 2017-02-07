@@ -19,12 +19,12 @@ end;
 
 signature SymTblSig =
 sig
-  structure Val : ValSig
-  structure Sym : SymSig
+  structure ValS : ValSig
+  structure SymS : SymSig
   type table
   exception Lookup
-  val lookup : table * Sym.sym -> Val.value
-  val update : table * Sym.sym * Val.value -> table
+  val lookup : table * SymS.sym -> ValS.value
+  val update : table * SymS.sym * ValS.value -> table
 end
 
 functor SymTblFct(
@@ -33,8 +33,8 @@ functor SymTblFct(
   structure Sym : SymSig) : SymTblSig =
 
   struct
-    structure Val = Val
-    structure Sym = Sym
+    structure ValS = Val
+    structure SymS = Sym
     datatype table = TBL of
     (Sym.sym * Val.value) list IntMap.map
 
