@@ -33,6 +33,8 @@ functor SymTblFct(
   structure Sym : SymSig) : SymTblSig =
 
   struct
+    structure Val = Val
+    structure Sym = Sym
     datatype table = TBL of
     (Sym.sym * Val.value) list IntMap.map
 
