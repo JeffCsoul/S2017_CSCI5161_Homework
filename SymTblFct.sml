@@ -52,3 +52,26 @@ functor SymTblFct(
       in TBL (IntMap.update(n, (s, v)::l, map))
       end handle IntMap.NotFound => raise Lookup
   end
+
+functor IntMapFct() : IntMapSig =
+  struct
+    type 'a map = (int * 'a) list
+    exception NotFound
+    fun apply([], intval) = raise NotFound
+      | apply((i, a)::rest, intval) =
+        if i = intval then a
+        else apply(rest, intval)
+
+    fun update(intval, corval, smap) =
+      (intval, corval)::smap
+    
+  end
+(*
+functor ValFct() : ValSig =
+  struct
+  end
+
+functor SymFct() : SymSig =
+  struct
+
+  end*)
