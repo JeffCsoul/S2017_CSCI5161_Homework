@@ -17,17 +17,20 @@ sig
   val hash : sym -> int
 end;
 
+signature SymTblSig =
+sig
+  structure Val : ValSig
+  structure Sym : SymSig
+  type table
+  exception Lookup
+  val lookup : table * Sym.sym -> Val.value
+  val update : table * Sym.sym * Val.value -> table
+end
+
 functor SymTblFct(
   structure IntMap : IntMapSig
   structure Val : ValSig
-  structure Sym : SymSig) :
-
-  sig
-    type table
-    exception Lookup
-    val lookup : table * Sym.sym -> Val.value
-    val update : table * Sym.sym * Val.value -> table
-  end =
+  structure Sym : SymSig) : SymTblSig =
 
   struct
     datatype table = TBL of
@@ -57,6 +60,7 @@ functor IntMapFct() : IntMapSig =
   struct
     type 'a map = (int * 'a) list
     exception NotFound
+
     fun apply([], intval) = raise NotFound
       | apply((i, a)::rest, intval) =
         if i = intval then a
@@ -64,14 +68,23 @@ functor IntMapFct() : IntMapSig =
 
     fun update(intval, corval, smap) =
       (intval, corval)::smap
-    
+
   end
-(*
+
 functor ValFct() : ValSig =
   struct
+    type value = int
   end
 
 functor SymFct() : SymSig =
   struct
+    type sym = string
 
-  end*)
+    fun gethashvalue "" = 0
+      | gethashvalue astring =
+        let val hdval = ord(String.sub(astring, 0))
+            val reststr = String.extract(astring, 1, NONE)
+        in  hdval + 256 * gethashvalue reststr end
+
+    fun hash asym = gethashvalue asym
+  end
