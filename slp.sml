@@ -106,12 +106,21 @@ fun interp init_stm =
         in
           (id1, return_val) :: table_exp1
         end
-      | interp_stm (PrintStm(nil)) init_table = init_table
-      | interp_stm (PrintStm(hd::restexplist)) init_table =
+      | interp_stm (PrintStm(this_stm)) init_table =
+          interp_stm_print (PrintStm(this_stm)) init_table nil
+    and interp_stm_print (PrintStm(nil)) init_table val_list =
+        let
+          fun print_all nil = print("\n")
+            | print_all (hd::tl) =
+              let val _ = print(Int.toString(hd) ^ " ")
+              in print_all(tl) end
+          val _ = print_all(val_list)
+        in init_table end
+      | interp_stm_print (PrintStm(hd::restexplist)) init_table val_list =
         let
           val (table_exphd, return_val) = interp_exp hd init_table
         in
-          interp_stm (PrintStm(restexplist)) table_exphd
+          interp_stm_print (PrintStm(restexplist)) table_exphd (val_list @ [return_val])
         end
     and interp_exp (IdExp(id1)) init_table = (init_table, lookup init_table id1)
       | interp_exp (NumExp(int1)) init_table = (init_table, int1)
@@ -136,5 +145,6 @@ fun interp init_stm =
           interp_exp exp1 table_stm1
         end
   in
-    interp_stm init_stm nil
+    let val final_table = interp_stm init_stm nil
+    in () end
   end
