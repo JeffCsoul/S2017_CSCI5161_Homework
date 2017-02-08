@@ -1,10 +1,9 @@
 signature ITEM =
 sig
   type item
-  val value : item
   val lt : item * item -> bool
   val eq : item * item -> bool
-  val print : item -> unit
+  val printval : item -> unit
 end
 
 signature BTREE =
@@ -46,7 +45,24 @@ struct
   fun print (Empty) = ()
     | print (Node(v, ltree, rtree)) =
       let val _ = print(ltree)
-          val _ = Item.print(v)
+          val _ = Item.printval(v)
           val _ = print(rtree)
       in () end
 end
+
+functor Item () : ITEM  =
+struct
+  type item = int * string
+  fun lt ((aint, astring),(bint, bstring)) =
+    aint < bint
+
+  fun eq ((aint, astring),(bint, bstring)) =
+    (aint = bint) andalso (astring = bstring)
+
+  fun printval (aint, astring) =
+    let val outputstr = "(" ^ Int.toString(aint) ^ "," ^ astring ^ ") "
+    in print(outputstr) end
+end
+
+structure IItem = Item();
+structure IBT = BTree(structure Item = IItem);
