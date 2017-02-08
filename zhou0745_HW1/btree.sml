@@ -66,3 +66,19 @@ end
 
 structure IItem = Item();
 structure IBT = BTree(structure Item = IItem);
+
+val atree = IBT.initTree();
+val atree = IBT.insert((3,"Hello"), atree)
+val atree = IBT.insert((1,"Good"), atree)
+val atree = IBT.insert((2,"Morning!"), atree)
+val atree = IBT.insert((9,"Tiannan"), atree)
+val atree = IBT.insert((8,"is"), atree)
+val atree = IBT.insert((4,"World!"), atree)
+val atree = IBT.insert((11,"Zhou"), atree)
+val atree = IBT.insert((6,"This"), atree);
+
+IBT.find((9,"Nothing"), atree);
+IBT.find((5,"Tiannan"), atree);
+IBT.find((2,"Morning!"), atree);
+IBT.find((4,"World!"), atree);
+IBT.print(atree);
