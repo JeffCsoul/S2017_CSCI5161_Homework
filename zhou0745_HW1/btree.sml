@@ -9,7 +9,8 @@ end
 signature BTREE =
 sig
   structure ItemS : ITEM
-  type btree
+  datatype btree = Empty
+                 | Node of (ItemS.item) * (btree) * (btree)
   val initTree : unit -> btree
   val insert : ItemS.item * btree -> btree
   val find : ItemS.item * btree -> bool
